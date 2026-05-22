@@ -56,11 +56,14 @@ function App() {
   return (
     <div>
       <header className="header">
-        <h1>도서관리</h1>
+        <div className="logo">
+          <h1>📚 도서관리</h1>
+        </div>
+
         <nav>
           <Link to="/">홈</Link>
           <Link to="/list">도서목록</Link>
-          <Link to="/create">새 도서</Link>
+          <Link to="/create" className="header button">+ 새 도서 등록</Link>
         </nav>
       </header>
 
