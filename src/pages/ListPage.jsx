@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 import db from '../../db.json';
 
-function ListPage({ books }) {
+function ListPage() {
+
+  const books = db.books;
 
   return (
     <div>
