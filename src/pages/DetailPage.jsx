@@ -21,4 +21,4 @@ function DetailPage({bookState, reviewList}){
 
     );
 }
-export default DetailPage
+export default DetailPage;
