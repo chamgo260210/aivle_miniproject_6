@@ -22,7 +22,7 @@ function BookReportDetailList({ book, review,  onCreate, onReviewLike, onReviewE
     const now = new Date().toISOString();
 
     const newReview = {
-      bookId: Number(book.id),
+      bookId: book.id,
       bookTitle: book.title,
       nickname: nickname.trim(),
       content: content.trim(),

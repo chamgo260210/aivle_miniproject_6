@@ -26,7 +26,7 @@ function DetailPage({books, reviews,onReviewAdd, onReviewLike, onReviewEdit, onR
             <button onClick={()=>onBookDelete(id)}>삭제하기</button>
         </div>
         <BookReportDetailList
-            review= {reviews.filter(p => p.bookId === Number(book.id) )}
+            review= {reviews.filter(p => String(p.bookId) === String(book.id) )}
             book={book}
             bookTitle={book.title}
             onCreate={onReviewAdd}
