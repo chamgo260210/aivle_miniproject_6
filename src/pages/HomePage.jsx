@@ -97,38 +97,32 @@ function HomePage({ books, reviews }) {
         <div className="review-list">
 
           {topReviews.map((review) => (
-
-            <div
-              className="review-card"
-              key={review.id}
-            >
-
-              <div className="review-top">
-
-                <div>
-
-                  <h3>
-                    {review.nickname}
-                  </h3>
-                  <span>
-                    {
-                      books.find(
-                        (b) =>
-                          String(b.id) ===
-                          String(review.bookId)
-                      )?.title
-                    }
-                  </span>
-                </div>
-
-                <div className="review-like">
-                  ❤️ {review.likes}
-                </div>
+        <Link
+          to={`/detail/${review.bookId}`}
+          className="review-card-link"
+          key={review.id}
+        >
+          <div className="review-card">
+            <div className="review-top">
+              <div>
+                <h3>{review.nickname}</h3>
+                <span>
+                  {
+                    books.find(
+                      (b) =>
+                        String(b.id) ===
+                        String(review.bookId)
+                    )?.title
+                  }
+                </span>
               </div>
-              <p>
-                {review.content}
-              </p>
+              <div className="review-like">
+                ❤️ {review.likes}
+              </div>
             </div>
+            <p>{review.content}</p>
+          </div>
+        </Link>
 
           ))}
 

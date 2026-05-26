@@ -379,22 +379,6 @@ body {
   gap: 30px;
 }
 
-.review-card {
-  background: white;
-
-  padding: 30px;
-
-  border-radius: 20px;
-
-  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-
-  transition: 0.3s;
-}
-
-.review-card:hover {
-  transform: translateY(-5px);
-}
-
 .review-top {
   display: flex;
   justify-content: space-between;
@@ -426,11 +410,6 @@ body {
   min-width: 90px;
 
   text-align: center;
-}
-
-.review-card p {
-  color: #555;
-  line-height: 1.7;
 }
 
 /* 새 도서 등록 폼 */
@@ -1052,4 +1031,34 @@ body {
   text-overflow: ellipsis;
 
   display: block;
+}
+
+.review-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.review-card {
+  background: white;
+
+  padding: 30px;
+
+  border-radius: 20px;
+
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+
+  height: 200px;
+  transition: 0.3s;
+}
+
+.review-card:hover {
+  transform: translateY(-5px);
+}
+
+.review-card p {
+  color: #555;
+  line-height: 1.7;
 }
