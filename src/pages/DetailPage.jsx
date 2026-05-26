@@ -19,7 +19,7 @@ function DetailPage({books, reviews,onReviewAdd, onReviewLike, onReviewEdit, onR
             <div className="detail-info">
                 <h3>{book.title}</h3>
                 <p>{book.content}</p>
-                <p>생성일: {book.createAt}</p>
+                <p>생성일: {book.createdAt}</p>
             </div>
             <button onClick={()=>onBookLikes(id)}>❤️{book.likes} </button>
             <button onClick={()=>onBookEdit(id)}>수정하기</button>
