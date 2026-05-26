@@ -3,42 +3,17 @@ import { Link } from 'react-router-dom';
 
 function HomePage({ books, reviews }) {
 
-  // 좋아요 TOP 3
   const topBooks = [...books]
     .sort((a, b) => b.likes - a.likes)
     .slice(0, 3);
 
-  // 리뷰 데이터 임시
-  const topReviews = [
-    {
-      id: 1,
-      user: "김민수",
-      book: "돌이킬 수 있는",
-      text: "몰입감이 엄청났습니다.",
-      likes: 128,
-    },
-
-    {
-      id: 2,
-      user: "이지은",
-      book: "구름 사람들",
-      text: "문장이 정말 아름다워요.",
-      likes: 97,
-    },
-
-    {
-      id: 3,
-      user: "박서준",
-      book: "돼지 목에 사랑",
-      text: "분위기가 너무 좋았습니다.",
-      likes: 76,
-    },
-  ];
+  const topReviews = [...reviews]
+  .sort((a, b) => b.likes - a.likes)
+  .slice(0, 3);
 
   return (
     <div className="app">
 
-      {/* SEARCH */}
       <div className="search-box">
 
         <input
@@ -52,7 +27,6 @@ function HomePage({ books, reviews }) {
 
       </div>
 
-      {/* 인기 도서 */}
       <section className="top-book-section">
 
         <div className="section-title">
@@ -68,7 +42,6 @@ function HomePage({ books, reviews }) {
               key={book.id}
             >
 
-              {/* IMAGE */}
               <div className="image-wrap">
 
                 <img
@@ -78,7 +51,6 @@ function HomePage({ books, reviews }) {
 
               </div>
 
-              {/* CONTENT */}
               <div className="book-content">
 
                 <div className="top-row">
@@ -101,7 +73,6 @@ function HomePage({ books, reviews }) {
                   {book.content}
                 </p>
 
-                {/* DETAIL PAGE */}
                 <Link
                   to={`/detail/${book.id}`}
                   className="detail-link"
@@ -119,7 +90,6 @@ function HomePage({ books, reviews }) {
 
       </section>
 
-      {/* 리뷰 */}
       <section className="review-section">
 
         <div className="review-title-wrap">
@@ -144,25 +114,26 @@ function HomePage({ books, reviews }) {
                 <div>
 
                   <h3>
-                    {review.user}
+                    {review.nickname}
                   </h3>
-
                   <span>
-                    {review.book}
+                    {
+                      books.find(
+                        (b) =>
+                          String(b.id) ===
+                          String(review.bookId)
+                      )?.title
+                    }
                   </span>
-
                 </div>
 
                 <div className="review-like">
                   ❤️ {review.likes}
                 </div>
-
               </div>
-
               <p>
-                {review.text}
+                {review.content}
               </p>
-
             </div>
 
           ))}
