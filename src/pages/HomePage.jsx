@@ -107,9 +107,11 @@ function App() {
 
               <Link
                 to={`/detail/${book.id}`}
-                className="detail-btn"
+                className="detail-link"
               >
+
                 자세히 보기
+
               </Link>
 
               </div>
