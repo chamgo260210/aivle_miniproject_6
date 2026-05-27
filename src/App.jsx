@@ -34,8 +34,11 @@ function App() {
   }, []);
 
   useEffect(() => {
-    setTags([...new Set(books.flatMap(b => b.tags ? b.tags : []))]);
-  }, [books]);
+
+    setTags([...new Set(books.flatMap(b => b.tag ? b.tag : []))]);
+
+  }, [books]); 
+
 
     //  create 관련 함수 
   const handleCreateBook = async (newBook) => {
@@ -44,6 +47,7 @@ function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newBook),
     });
+    console.log(newBook)
     const savedBook = await res.json();
     setBooks([savedBook, ...books]);
     return savedBook;

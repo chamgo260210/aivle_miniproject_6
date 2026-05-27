@@ -26,7 +26,8 @@ const deleteTag = (index) => {
 
 const addTag = () => {
   if (!newTag.trim()) return;
-  setTags([...tags, newTag.trim()]);
+  console.log(tags)
+  setTags(prev => [...(prev || []), newTag.trim()]);
   setNewTag("");
 };
   const handleGenerateCover = async () => {
@@ -140,7 +141,7 @@ const addTag = () => {
         content: content.trim(),
         likes: 0,
         coverImageUrl,
-        tags: tags,
+        tag: tags,
 
         createdAt: now,
         updatedAt: now,
