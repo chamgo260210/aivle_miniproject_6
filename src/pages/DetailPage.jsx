@@ -48,8 +48,8 @@ function DetailPage({books, reviews,onReviewAdd, onReviewLike, onReviewEdit, onR
                 <div className="detail-info">
                     <h2 className="detail-title">{book.title}</h2>
                     <p className="detail-content-quote">{book.content}</p>
-                    {book.tag?.length > 0 && (
-                        <p className="detail-tag-line">{book.tag.map(t=> `#${t} ` )}</p>
+                    {book.tags?.length > 0 && (
+                        <p className="detail-tag-line">{book.tags.map(t=> `#${t} ` )}</p>
                     )}
                     <div className="detail-meta">
                         <span className="detail-meta-item">생성 {formatDate(book.createdAt)}</span>

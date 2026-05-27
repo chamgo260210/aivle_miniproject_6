@@ -728,6 +728,28 @@ body {
   margin-bottom: 24px;
 }
 
+.book-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.book-meta .book-like {
+  margin-bottom: 0;
+}
+
+.book-tag {
+  background: #e7f0ff;
+  color: #1976d2;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
 /* DETAIL BUTTON */
 
 .detail-link {

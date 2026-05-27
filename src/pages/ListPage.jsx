@@ -1,32 +1,21 @@
 import { Link, useSearchParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 function ListPage({ books, tags }) {
   const [searchParams] = useSearchParams();
 
   const keyword = searchParams.get('keyword') || '';
 
-  const [selectedTags, setSelectedTags] = useState(['없음']);
-  useEffect(()=>{
-    if (!tags || tags.length === 0) {
-      return;
-    }
-
-    setSelectedTags([...tags, "없음"]);}
-    ,[tags])
+  const [selectedTag, setSelectedTag] = useState('전체');
 
   const filteredBooks = books.filter((book) =>
   {
     const keyward_bool = book.title
       .toLowerCase()
       .includes(keyword.toLowerCase())
-    let tag_bool = true;
-    if (selectedTags.includes('없음'))
-      tag_bool = (!book.tag || book.tag.length === 0) 
-      ? true : selectedTags.some(t => book.tag.includes(t));
-    else
-      tag_bool =  (!book.tag || book.tag.length === 0) 
-      ? false : selectedTags.some(t => book.tag.includes(t) )
+    const tag_bool = selectedTag === '전체'
+      ? true
+      : Array.isArray(book.tags) && book.tags.includes(selectedTag);
 
       return keyward_bool && tag_bool
   }
@@ -51,11 +40,7 @@ function ListPage({ books, tags }) {
   });
 
   const handleTagClick = (tag) => {
-    if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter(t=>t!==tag)); 
-    } else {
-      setSelectedTags([...selectedTags, tag]); 
-    }
+    setSelectedTag(tag);
   };
 
   return (
@@ -96,8 +81,8 @@ function ListPage({ books, tags }) {
 
       {/* ─── 태그 한 줄 출력 영역 ─── */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-        {['없음',...tags].map((t) => {
-          const isSelected = selectedTags.includes(t); 
+        {['전체',...tags].map((t) => {
+          const isSelected = selectedTag === t;
           return (
             <span
               key={t}
@@ -153,8 +138,15 @@ function ListPage({ books, tags }) {
                 <span className="search-author">
                   {book.author}
                 </span>
-                <div className="book-like">
-                  ❤️ {book.likes}
+                <div className="book-meta">
+                  <div className="book-like">
+                    ❤️ {book.likes}
+                  </div>
+                  {Array.isArray(book.tags) && book.tags.map((t) => (
+                    <span className="book-tag" key={t}>
+                      #{t}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
