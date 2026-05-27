@@ -9,7 +9,26 @@ function Create({ onCreate }) {
   const [quality, setQuality] = useState('low');
   const [coverImageUrl, setCoverImageUrl] = useState('');
   const [generating, setGenerating] = useState(false);
+  const [generatingTag, setGeneratingTag] = useState(false);
+  const [tags, setTags] = useState([]);
+  const [newTag, setNewTag] = useState("");
 
+
+  const updateTag = (index, value) => {
+    const next = [...tags];
+    next[index] = value;
+    setTags(next);
+  };
+
+const deleteTag = (index) => {
+  setTags(tags.filter((_, i) => i !== index));
+};
+
+const addTag = () => {
+  if (!newTag.trim()) return;
+  setTags([...tags, newTag.trim()]);
+  setNewTag("");
+};
   const handleGenerateCover = async () => {
 
     if (!apiKey.trim()) {
@@ -121,6 +140,7 @@ function Create({ onCreate }) {
         content: content.trim(),
         likes: 0,
         coverImageUrl,
+        tags: tags,
 
         createdAt: now,
         updatedAt: now,
@@ -129,6 +149,87 @@ function Create({ onCreate }) {
     } catch (err) {
 
       alert(`등록 실패: ${err.message}`);
+
+    }
+  };
+
+  const handelCreateTag = async () => {
+    
+    if (!apiKey.trim()) {
+      alert('OpenAI API Key를 입력하세요');
+      return;
+    }
+
+    if (!apiKey.startsWith('sk-')) {
+      alert('올바른 OpenAI API Key 형식이 아닙니다');
+      return;
+    }
+
+    if (!title.trim() && !content.trim()) {
+      alert('제목 또는 내용을 입력해야 표지를 생성할 수 있습니다');
+      return;
+    }
+
+    // 추가
+    if (title.trim().length > 100) {
+      alert('제목은 100자 이하로 입력하세요');
+      return;
+    }
+    setGeneratingTag(true);
+    const tag_data = {
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: `너는 책의 요약 내용을 보고, 책에 알맞은 태그를 만드는 역할이야.
+           태그의 종류는 다음과 같아. 
+            "소설·문학",
+            "인문·역사",
+            "경제·자기계발",
+            "과학·기술",
+            "실용·취미",
+            "학습·아동",
+           이 중에 해당하는 영역을 출력해줘. 부가적인 설명없이 tag만 list형식으로 출력해. 그리고 주어진 태그 종류 외에는 사용하지마
+           이중에 아무것도 해당되지 않으면 '없음'태그를 부여해.
+           출력은 반디시 JSON 배열만 한다.
+           [출력 예시]
+           ["실용·취미"]
+           ["인문·역사", "과학·기술"]
+           `
+        },
+        { role: 'user', content: content }
+      ],
+      temperature: 0.7,
+      response_format: { type: "json_object" }
+    };
+
+
+    try{
+    const res = await fetch ( "https://api.openai.com/v1/chat/completions",
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey.trim()}`
+        },
+        body: JSON.stringify(tag_data)
+      }
+    );
+
+    console.log(res)
+
+    const data = await res.json(); 
+
+    const resultText = data.choices[0].message.content;
+
+
+    const parsed = JSON.parse(resultText)['tags'];
+
+    console.log(parsed);
+    setTags(parsed);
+    }catch{
+      
+    }finally {
+      console.log(tags)
+      setGeneratingTag(false);
 
     }
   };
@@ -177,7 +278,28 @@ function Create({ onCreate }) {
           <option value="high">High</option>
         </select>
       </div>
+<div>
+  {tags?.map((tag, index) => (
+    <span key={index} style={{ marginRight: "8px" }}>
+      #
+      <input
+        value={tag}
+        onChange={(e) => updateTag(index, e.target.value)}
+        style={{ width: "80px" }}
+      />
+      <button onClick={() => deleteTag(index)}>x</button>
+    </span>
+  ))}
 
+  <input
+    value={newTag}
+    onChange={(e) => setNewTag(e.target.value)}
+    placeholder="태그 추가"
+  />
+
+  <button onClick={addTag}>추가</button>
+  <button onClick={handelCreateTag} disabled={generatingTag}>{generating ? '생성 중...' : '자동 생성'}</button>
+</div>
       <button type="button" onClick={handleGenerateCover} disabled={generating}>
         {generating ? '생성 중...' : 'AI 표지 생성'}
       </button>
