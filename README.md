@@ -286,6 +286,7 @@ aivle_miniproject
 │  │  ├─ BookReportDetailItem.jsx
 │  │  ├─ BookReportHomeItem.jsx
 │  │  ├─ BookReportHomeList.jsx
+│  │  ├─ BookDetailEdit.jsx
 │  │  ├─ api.js
 │  │  └─ utils.js
 │  │
@@ -293,6 +294,7 @@ aivle_miniproject
 │  │  ├─ HomePage.jsx
 │  │  ├─ ListPage.jsx
 │  │  ├─ CreatePage.jsx
+│  │  ├─ ReviewListPage.jsx
 │  │  └─ DetailPage.jsx
 │  │
 │  ├─ App.jsx
