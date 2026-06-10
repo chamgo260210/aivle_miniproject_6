@@ -15,7 +15,7 @@ public class Book {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;          // 나중에 fk지정
+    //private Long userId;
 
     @NotBlank
     @Column(nullable = false)
