@@ -5,11 +5,13 @@ import com.aivle.backend.exception.BookNotFoundException;
 import com.aivle.backend.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)   // 조회 메서드 기본값: 읽기 전용 트랜잭션
 public class BookService {
 
     private final BookRepository bookRepository;   // Repository 가져다 씀
@@ -26,11 +28,13 @@ public class BookService {
     }
 
     // 등록
+    @Transactional
     public Book createBook(Book book) {
         return bookRepository.save(book);
     }
 
     // 수정 (부분수정: 넘어온 필드만 변경)
+    @Transactional
     public Book updateBook(Long id, Book newData) {
         Book book = getBook(id);                                  // 기존 책 찾고
         if (newData.getTitle() != null) book.setTitle(newData.getTitle());
@@ -43,6 +47,7 @@ public class BookService {
     }
 
     // 삭제
+    @Transactional
     public void deleteBook(Long id) {
         if (!bookRepository.existsById(id)) {
             throw new BookNotFoundException(id);
@@ -51,6 +56,7 @@ public class BookService {
     }
 
     // 표지만 수정
+    @Transactional
     public Book updateCover(Long id, String url) {
         Book book = getBook(id);
         book.setCoverImageUrl(url);
