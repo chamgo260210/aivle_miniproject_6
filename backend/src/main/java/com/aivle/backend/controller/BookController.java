@@ -2,6 +2,7 @@ package com.aivle.backend.controller;
 
 import com.aivle.backend.entity.Book;
 import com.aivle.backend.service.BookService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,12 +27,12 @@ public class BookController {
     }
 
     @PostMapping
-    public ResponseEntity<Book> createBook(@RequestBody Book book) {
+    public ResponseEntity<Book> createBook(@Valid @RequestBody Book book) {
         return ResponseEntity.status(201).body(bookService.createBook(book));
     }
 
     @PatchMapping("/{id}")
-    public Book updateBook(@PathVariable Long id, @RequestBody Book book) {
+    public Book updateBook(@PathVariable Long id, @Valid @RequestBody Book book) {
         return bookService.updateBook(id, book);
     }
 

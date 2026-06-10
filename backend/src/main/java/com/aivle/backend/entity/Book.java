@@ -1,6 +1,7 @@
 package com.aivle.backend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -16,12 +17,15 @@ public class Book {
 
     private Long userId;          // 나중에 fk지정
 
+    @NotBlank
     @Column(nullable = false)
     private String title;
 
+    @NotBlank
     @Column(nullable = false)
     private String author;
 
+    @NotBlank
     @Lob @Column(columnDefinition = "TEXT")
     private String content;
 
