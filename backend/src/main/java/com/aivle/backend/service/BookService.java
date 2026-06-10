@@ -1,6 +1,7 @@
 package com.aivle.backend.service;
 
 import com.aivle.backend.entity.Book;
+import com.aivle.backend.exception.BookNotFoundException;
 import com.aivle.backend.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class BookService {
     // 상세 조회 (없으면 에러)
     public Book getBook(Long id) {
         return bookRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("책 없음: " + id));
+                .orElseThrow(() -> new BookNotFoundException(id));
     }
 
     // 등록
