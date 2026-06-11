@@ -455,7 +455,7 @@ React Frontend와 Spring Boot Backend를 연동하여 도서 등록, 조회, 수
 ![홈 화면](./screenshots/홈화면.png)
 
 2. 도서 등록
-![도서 등록 예시](./screenshots/도서 등록 예시.png)
+![도서 등록 예시](./screenshots/도서등록예시.png)
 
 3. 등록된 도서 목록 확인
 
