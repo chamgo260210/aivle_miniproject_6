@@ -15,4 +15,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByCreatedBy(String createdBy);
 
 //    void deleteByBook_Id(Long bookId);
+
+    void deleteByBookId(Long bookId);
 }

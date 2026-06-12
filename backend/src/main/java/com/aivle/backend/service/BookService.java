@@ -3,6 +3,7 @@ package com.aivle.backend.service;
 import com.aivle.backend.entity.Book;
 import com.aivle.backend.exception.BookNotFoundException;
 import com.aivle.backend.repository.BookRepository;
+import com.aivle.backend.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.List;
 public class BookService {
 
     private final BookRepository bookRepository;
+    private final ReviewRepository reviewRepository;
 
     public List<Book> getBooks() {
         return bookRepository.findAll();
@@ -50,6 +52,9 @@ public class BookService {
     public void deleteBook(Long id, String username) {
         Book book = getBook(id);
         checkOwner(book, username);
+
+        reviewRepository.deleteByBookId(id);
+
         bookRepository.deleteById(id);
     }
 
