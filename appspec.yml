@@ -3,7 +3,7 @@ os: linux
 
 files:
   - source: /
-    destination: /home/ubuntu/aivle-app
+    destination: /home/ec2-user/aivle-app
     overwrite: yes
 
 hooks:
