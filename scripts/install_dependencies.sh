@@ -2,28 +2,37 @@
 set -e
 
 APP_DIR="/opt/aivle-app"
-# 계정 경로를 ubuntu에서 ec2-user로 변경
 DEPLOY_DIR="/home/ec2-user/aivle-app"
 WEB_DIR="/var/www/aivle"
+CW_CONFIG="/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json"
 
 echo "[AfterInstall] Install dependencies and configure application"
 
-# apt-get update 대신 dnf 사용 (dnf는 패키지 설치 시 자동 업데이트되므로 생략 가능하나 명시)
-sudo dnf check-update || true
+echo "Check package updates"
+dnf check-update || true
 
-# Java 17 패키지명을 Amazon Corretto로 변경
+echo "Install Java 17"
 if ! command -v java > /dev/null 2>&1; then
-  sudo dnf install -y java-17-amazon-corretto
+  dnf install -y java-17-amazon-corretto
 fi
 
-# Nginx 설치 명령어 변환
+echo "Install Nginx"
 if ! command -v nginx > /dev/null 2>&1; then
-  sudo dnf install -y nginx
+  dnf install -y nginx
 fi
 
+echo "Install CloudWatch Agent"
+if [ ! -x /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl ]; then
+  dnf install -y amazon-cloudwatch-agent
+fi
+
+echo "Create application directories"
 mkdir -p ${APP_DIR}
 mkdir -p ${APP_DIR}/logs
 mkdir -p ${WEB_DIR}
+
+# CloudWatch Agent가 app.log를 바로 수집할 수 있도록 파일을 미리 생성
+touch ${APP_DIR}/logs/app.log
 
 echo "Copy backend jar"
 cp ${DEPLOY_DIR}/app.jar ${APP_DIR}/app.jar
@@ -33,7 +42,6 @@ rm -rf ${WEB_DIR}/*
 cp -r ${DEPLOY_DIR}/frontend-dist/* ${WEB_DIR}/
 
 echo "Configure nginx"
-# Amazon Linux는 sites-available 대신 conf.d 디렉터리를 기본 기본으로 사용합니다.
 cat > /etc/nginx/conf.d/aivle-app.conf <<'EOF'
 server {
     listen 80;
@@ -41,10 +49,6 @@ server {
 
     root /var/www/aivle;
     index index.html;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
 
     location /api/ {
         proxy_pass http://127.0.0.1:8080/;
@@ -55,18 +59,70 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
 }
 EOF
 
-# Amazon Linux의 기본 서버 설정을 비활성화하기 위해 백업 처리
+echo "Adjust default nginx config if needed"
 if [ -f /etc/nginx/nginx.conf ]; then
-  # nginx.conf 내부에 기본으로 잡혀있는 80포트 기본 server 블록과 충돌을 방지하기 위함입니다.
-  # (만약 기본 nginx.conf에 server 블록이 살아있다면 default_server 충돌이 날 수 있습니다)
-  sudo sed -i 's/listen       80 default_server;/listen       80;/g' /etc/nginx/nginx.conf 2>/dev/null || true
+  sed -i 's/listen       80 default_server;/listen       80;/g' /etc/nginx/nginx.conf 2>/dev/null || true
 fi
 
+echo "Validate and restart nginx"
 nginx -t
 systemctl enable nginx
 systemctl restart nginx
+
+echo "Configure CloudWatch Agent"
+mkdir -p /opt/aws/amazon-cloudwatch-agent/etc
+
+cat > ${CW_CONFIG} <<'EOF'
+{
+  "agent": {
+    "region": "us-east-1"
+  },
+  "logs": {
+    "logs_collected": {
+      "files": {
+        "collect_list": [
+          {
+            "file_path": "/opt/aivle-app/logs/app.log",
+            "log_group_name": "/test99-mip/application",
+            "log_stream_name": "{instance_id}",
+            "timezone": "Local"
+          },
+          {
+            "file_path": "/var/log/nginx/access.log",
+            "log_group_name": "/test99-mip/nginx-access",
+            "log_stream_name": "{instance_id}",
+            "timezone": "Local"
+          },
+          {
+            "file_path": "/var/log/nginx/error.log",
+            "log_group_name": "/test99-mip/nginx-error",
+            "log_stream_name": "{instance_id}",
+            "timezone": "Local"
+          }
+        ]
+      }
+    }
+  }
+}
+EOF
+
+echo "Start CloudWatch Agent"
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+  -a fetch-config \
+  -m ec2 \
+  -c file:${CW_CONFIG} \
+  -s
+
+echo "CloudWatch Agent status"
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+  -m ec2 \
+  -a status
 
 echo "[AfterInstall] Complete"
