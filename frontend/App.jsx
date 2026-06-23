@@ -35,8 +35,8 @@ function App() {
   useEffect(() => {
     async function loadData() {
       try {
-        const booksRes = await fetch('http://localhost:8080/books');
-        const reviewsRes = await fetch('http://localhost:8080/reviews');
+        const booksRes = await fetch('/api/books');
+        const reviewsRes = await fetch('/api/reviews');
         const res1 = await booksRes.json();
         setBooks(res1);
         const res2 = await reviewsRes.json();
@@ -74,7 +74,7 @@ function App() {
 
     try {
       const book = books.find(b => String(b.id) === String(id));
-      const res = await fetch(`http://localhost:8080/books/${id}/likes`, {
+      const res = await fetch(`/api/books/${id}/likes`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
