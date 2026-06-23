@@ -4,20 +4,47 @@ phases:
   install:
     runtime-versions:
       java: corretto17
+      nodejs: 20
+    commands:
+      - echo "Install phase started"
+      - java -version
+      - node -v
+      - npm -v
+
   pre_build:
     commands:
-      - echo "빌드 시작"
-      - cd backend
-      - chmod +x ./gradlew
+      - echo "Pre build phase started"
+      - echo "Install frontend dependencies"
+      - cd frontend
+      - npm ci
+      - cd ..
+
   build:
     commands:
-      - echo "Gradle 빌드 중..."
-      - ./gradlew build -x test
-      - echo "빌드 완료"
-    finally:
-      - echo "finally 블록 실행"
+      - echo "Build phase started"
+
+      - echo "Build frontend"
+      - cd frontend
+      - npm run build
+      - cd ..
+
+      - echo "Build backend"
+      - cd backend
+      - chmod +x gradlew
+      - ./gradlew clean bootJar -x test
+      - cd ..
+
+  post_build:
+    commands:
+      - echo "Post build phase started"
+      - mkdir -p package
+      - cp backend/build/libs/*.jar package/app.jar
+      - cp -r frontend/dist package/frontend-dist
+      - cp appspec.yml package/appspec.yml
+      - cp -r scripts package/scripts
+      - echo "Build artifact packaging complete"
 
 artifacts:
-  base-directory: backend/build/libs
+  base-directory: package
   files:
-    - '*.jar'
+    - '**/*'
