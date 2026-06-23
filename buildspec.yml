@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto17
+  pre_build:
+    commands:
+      - echo "빌드 시작"
+      - cd backend
+      - chmod +x ./gradlew
+  build:
+    commands:
+      - echo "Gradle 빌드 중..."
+      - ./gradlew build -x test
+      - echo "빌드 완료"
+    finally:
+      - echo "finally 블록 실행"
+
+artifacts:
+  base-directory: backend/build/libs
+  files:
+    - '*.jar'
