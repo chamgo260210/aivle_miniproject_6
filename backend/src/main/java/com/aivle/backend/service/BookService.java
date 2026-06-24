@@ -77,10 +77,18 @@ public class BookService {
         }
         return bookRepository.save(book);
     }
- 
+
+    @Transactional
+    public Book addViews(Long id) {
+        Book book = getBook(id);
+        Integer currentViews = book.getViews();
+        book.setViews(currentViews == null ? 1 : currentViews + 1);
+        return bookRepository.save(book);
+    }
+
     public List<Book> getMyBooks(String username) {
-    return bookRepository.findByCreatedBy(username);
-}
+        return bookRepository.findByCreatedBy(username);
+    }
 
     private void checkOwner(Book book, String username) {
         if (book.getCreatedBy() == null || !book.getCreatedBy().equals(username)) {

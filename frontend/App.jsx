@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
 
 import HomePage from './pages/HomePage';
@@ -14,6 +14,9 @@ import AdminPage from './pages/AdminPage';
 import { request } from './components/api.js';
 
 function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [books, setBooks] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,18 +32,20 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
+    localStorage.removeItem('role');
     setCurrentUser(null);
+      if (location.pathname === '/admin' || location.pathname === '/mypage') {
+      navigate('/');
+    }
   };
 
   useEffect(() => {
     async function loadData() {
       try {
-        const booksRes = await fetch('/api/books');
-        const reviewsRes = await fetch('/api/reviews');
-        const res1 = await booksRes.json();
-        setBooks(res1);
-        const res2 = await reviewsRes.json();
-        setReviews(res2);
+        const booksRes = await request('/books');
+        const reviewsRes = await request('/reviews');
+        setBooks(booksRes);
+        setReviews(reviewsRes);
       } catch (err) {
         console.error('데이터 불러오기 실패:', err);
       }
@@ -62,6 +67,17 @@ function App() {
       return savedBook;
   };
 
+  const handleView = async (id) => {
+    try {
+      const updated = await request(`/books/${id}/views`, {
+        method: 'PATCH',
+      });
+      setBooks((prevBooks) => prevBooks.map((book) => String(book.id) === String(id) ? updated : book));
+    } catch (err) {
+      console.error('handleView Error:', err);
+    }
+  };
+
   const handleBookLikes = async (id) => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -74,16 +90,10 @@ function App() {
 
     try {
       const book = books.find(b => String(b.id) === String(id));
-      const res = await fetch(`/api/books/${id}/likes`, {
+      const updatedBook = await request(`/books/${id}/likes`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
         body: JSON.stringify({ likes: already ? book.likes - 1 : book.likes + 1 }),
       });
-      if (!res.ok) throw new Error('좋아요 실패');
-      const updatedBook = await res.json();
       setBooks((prevBooks) =>
         prevBooks.map((b) => String(b.id) === String(id) ? updatedBook : b)
       );
@@ -176,13 +186,15 @@ function App() {
   }
 
   return (
-    <div>
+    <div className="app-shell">
       <header className="header">
-        <div className="logo">
-          <h1 className="logo">📚 도서관리</h1>
-        </div>
-        <nav>
-          {localStorage.getItem('role') === 'ADMIN' && (
+        <Link to="/" className="logo" aria-label="홈으로 이동">
+          <span className="logo-icon">📚</span>
+          <h1>도서관리</h1>
+        </Link>
+
+        <nav aria-label="주요 메뉴">
+          {currentUser && localStorage.getItem('role') === 'ADMIN' && (
             <Link to="/admin">관리자</Link>
           )}
           <Link to="/">홈</Link>
@@ -219,6 +231,7 @@ function App() {
               onReviewEdit={handleReviewEdit}
               onReviewDelete={handleReviewDelete}
               onReviewAdd={handleReviewAdd}
+              onView={handleView}
             />}
           />
           <Route path="/reviews" element={<ReviewListPage reviews={reviews} books={books} />} />
@@ -228,6 +241,34 @@ function App() {
           <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </main>
+
+      <footer className="footer">
+        <div className="footer-inner">
+          <div className="footer-brand">
+            <span className="footer-logo">📚</span>
+            <div>
+              <strong>도서관리</strong>
+              <p>AI 표지 생성과 리뷰 기능을 제공하는 도서 관리 서비스입니다.</p>
+            </div>
+          </div>
+
+          <div className="footer-info">
+            <div className="footer-info-item">
+              <span className="footer-info-title">서비스 이용</span>
+              <p>도서 등록, 리뷰 작성, 좋아요 기능은 로그인 후 이용할 수 있습니다.</p>
+            </div>
+
+            <div className="footer-info-item">
+              <span className="footer-info-title">프로젝트 정보</span>
+              <p>AIVLE Mini Project 6 · React & Spring Boot 기반 도서관리 시스템</p>
+            </div>
+          </div>
+
+          <div className="footer-copy">
+            © 2026 AIVLE Mini Project 6. All rights reserved.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

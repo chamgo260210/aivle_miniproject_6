@@ -2,13 +2,16 @@ package com.aivle.backend.controller;
 
 import com.aivle.backend.entity.Book;
 import com.aivle.backend.service.BookService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/books")
@@ -54,5 +57,22 @@ public class BookController {
     public ResponseEntity<Void> deleteBook(@PathVariable Long id, Principal principal) {
         bookService.deleteBook(id, principal.getName());
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/views")
+    public ResponseEntity<?> addViews(@PathVariable Long id, HttpServletRequest request) {
+        String clientIp = extractClientIp(request);
+        Book updatedBook = bookService.addViews(id);
+        return ResponseEntity.ok(updatedBook);
+    }
+
+    private String extractClientIp(HttpServletRequest request) {
+        String forwarded = request.getHeader("X-Forwarded-For");
+
+        if (forwarded != null && !forwarded.isBlank()) {
+            return forwarded.split(",")[0].trim();
+        }
+
+        return request.getRemoteAddr();
     }
 }

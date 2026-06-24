@@ -34,6 +34,8 @@ public class Book {
 
     private Integer likes;
 
+    private Integer views;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
@@ -47,6 +49,7 @@ public class Book {
     @PrePersist
     public void prePersist() {
         if (this.likes == null) this.likes = 0;
+        if (this.views == null) this.views = 0;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }

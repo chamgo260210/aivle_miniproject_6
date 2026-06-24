@@ -1,7 +1,7 @@
 import BookReportDetailList from '../components/BookReportDetailList';
 import BookDetailEdit from '../components/BookDetailEdit';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { formatDate } from "../components/utils.js";
 
 function DetailPage({
@@ -13,7 +13,8 @@ function DetailPage({
   onReviewDelete,
   onBookDelete,
   onBookEdit,
-  onBookLikes
+  onBookLikes,
+  onView
 }) {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -27,7 +28,14 @@ function DetailPage({
 
   const [sortType, setSortType] = useState('latest');
 
+  useEffect(() => {
+    if (id) {
+      onView(id);
+    }
+  }, [id]);
+
   const sortedReviews = useMemo(() => {
+    if (!book) return [];
     const filtered = reviews.filter(
       p => String(p.bookId) === String(book.id)
     );
@@ -50,7 +58,7 @@ function DetailPage({
         new Date(a.createdAt)
       );
     });
-  }, [reviews, book?.id, sortType]);
+  }, [reviews, book, sortType]);
 
   const handleBookDelete = () => {
     const isConfirmed = window.confirm(
@@ -131,6 +139,7 @@ function DetailPage({
               <button onClick={() => onBookLikes(id)}>
                   ❤️ {book.likes}
               </button>
+              <span>조회수: {book.views}</span>
 
               {isOwner && (
                   <>
