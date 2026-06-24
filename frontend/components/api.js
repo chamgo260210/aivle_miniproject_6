@@ -6,12 +6,13 @@ export async function request(path, options = {}) {
   const token = localStorage.getItem('token');
 
   const res = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
     headers: {
       "Content-Type": "application/json",
       ...(token ? { "Authorization": `Bearer ${token}` } : {}),
       ...(options.headers || {}),
     },
-    ...options,
+    
   });
 
   if (!res.ok) {

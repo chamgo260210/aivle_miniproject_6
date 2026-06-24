@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { request } from '../components/api';
 
 function LoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
@@ -11,9 +12,8 @@ function LoginPage({ onLogin }) {
     e.preventDefault();
     setError('');
     try {
-      const res = await fetch('/auth/login', {
+      const res = await request('/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
       if (!res.ok) {
