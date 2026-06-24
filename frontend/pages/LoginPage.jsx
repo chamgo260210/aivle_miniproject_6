@@ -12,15 +12,11 @@ function LoginPage({ onLogin }) {
     e.preventDefault();
     setError('');
     try {
-      const res = await request('/auth/login', {
+      const data = await request('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ username, password }),
       });
-      if (!res.ok) {
-        setError('아이디 또는 비밀번호가 틀렸습니다.');
-        return;
-      }
-      const data = await res.json();
+
       localStorage.setItem('token', data.token);
       localStorage.setItem('username', username);
       localStorage.setItem('role', data.role);

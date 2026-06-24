@@ -12,15 +12,10 @@ function SignupPage() {
     e.preventDefault();
     setError('');
     try {
-      const res = await request('/auth/register', {
+      const data = await request('/auth/register', {
         method: 'POST',
         body: JSON.stringify({ username, password }),
       });
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.message || '회원가입 실패');
-        return;
-      }
       alert('회원가입 성공! 로그인해주세요.');
       navigate('/login');
     } catch (err) {
