@@ -23,7 +23,7 @@ public class Review {
     @Column(nullable = false, length = 50)
     private String nickname;
 
-    @Lob
+    
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 

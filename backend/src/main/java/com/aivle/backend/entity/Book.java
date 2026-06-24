@@ -26,10 +26,10 @@ public class Book {
     private String author;
 
     @NotBlank
-    @Lob @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Lob @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String coverImageUrl;
 
     private Integer likes;
