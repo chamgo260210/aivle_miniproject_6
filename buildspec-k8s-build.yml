@@ -1,0 +1,45 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: us-east-1
+    FRONTEND_REPO_NAME: test99-mip-frontend
+    BACKEND_REPO_NAME: test99-mip-backend
+
+phases:
+  pre_build:
+    commands:
+      - echo "Login to Amazon ECR"
+      - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - ECR_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
+      - aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${ECR_URI}
+      - IMAGE_TAG=$(echo ${CODEBUILD_RESOLVED_SOURCE_VERSION} | cut -c 1-7)
+      - echo "IMAGE_TAG=${IMAGE_TAG}"
+      - echo ${IMAGE_TAG} > image-tag.txt
+
+  build:
+    commands:
+      - echo "Build backend image"
+      - docker build -t ${BACKEND_REPO_NAME}:${IMAGE_TAG} ./backend
+      - docker tag ${BACKEND_REPO_NAME}:${IMAGE_TAG} ${ECR_URI}/${BACKEND_REPO_NAME}:${IMAGE_TAG}
+
+      - echo "Build frontend image"
+      - docker build -t ${FRONTEND_REPO_NAME}:${IMAGE_TAG} ./frontend
+      - docker tag ${FRONTEND_REPO_NAME}:${IMAGE_TAG} ${ECR_URI}/${FRONTEND_REPO_NAME}:${IMAGE_TAG}
+
+  post_build:
+    commands:
+      - echo "Push backend image"
+      - docker push ${ECR_URI}/${BACKEND_REPO_NAME}:${IMAGE_TAG}
+
+      - echo "Push frontend image"
+      - docker push ${ECR_URI}/${FRONTEND_REPO_NAME}:${IMAGE_TAG}
+
+      - echo "Render Kubernetes manifests"
+      - sed -i "s|BACKEND_IMAGE_URI|${ECR_URI}/${BACKEND_REPO_NAME}:${IMAGE_TAG}|g" k8s/10-backend-deployment.yaml
+      - sed -i "s|FRONTEND_IMAGE_URI|${ECR_URI}/${FRONTEND_REPO_NAME}:${IMAGE_TAG}|g" k8s/20-frontend-deployment.yaml
+
+artifacts:
+  files:
+    - image-tag.txt
+    - k8s/**/*

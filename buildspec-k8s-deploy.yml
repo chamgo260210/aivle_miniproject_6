@@ -1,0 +1,65 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: us-east-1
+    CLUSTER_NAME: test99-mip-eks
+    NAMESPACE: book-app
+    DB_NAME: bookdb
+    DB_USERNAME: appuser
+    RDS_ENDPOINT: anon99-test-mip-rds.cqbgqrxkrfb4.us-east-1.rds.amazonaws.com
+  parameter-store:
+    DB_PASSWORD: /test99-mip/rds/password
+
+phases:
+  pre_build:
+    commands:
+      - echo "Install kubectl"
+      - curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.0/2024-05-12/bin/linux/amd64/kubectl
+      - chmod +x ./kubectl
+      - mkdir -p $HOME/bin
+      - mv ./kubectl $HOME/bin/kubectl
+      - export PATH=$HOME/bin:$PATH
+      - kubectl version --client=true
+
+      - echo "Update kubeconfig"
+      - aws eks update-kubeconfig --region ${AWS_DEFAULT_REGION} --name ${CLUSTER_NAME}
+
+  build:
+    commands:
+      - echo "Apply namespace"
+      - kubectl apply -f k8s/00-namespace.yaml
+
+      - echo "Create or update backend ConfigMap"
+      - |
+        kubectl create configmap backend-config -n ${NAMESPACE} \
+          --from-literal=SPRING_DATASOURCE_URL=jdbc:postgresql://${RDS_ENDPOINT}:5432/${DB_NAME} \
+          --from-literal=SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver \
+          --from-literal=SPRING_JPA_HIBERNATE_DDL_AUTO=update \
+          --from-literal=SPRING_JPA_SHOW_SQL=false \
+          --from-literal=SPRING_H2_CONSOLE_ENABLED=false \
+          --from-literal=SERVER_SERVLET_CONTEXT_PATH=/api \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+      - echo "Create or update RDS Secret"
+      - |
+        kubectl create secret generic rds-secret -n ${NAMESPACE} \
+          --from-literal=SPRING_DATASOURCE_USERNAME=${DB_USERNAME} \
+          --from-literal=SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD} \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+      - echo "Apply Kubernetes resources"
+      - kubectl apply -f k8s/10-backend-deployment.yaml
+      - kubectl apply -f k8s/11-backend-service.yaml
+      - kubectl apply -f k8s/20-frontend-deployment.yaml
+      - kubectl apply -f k8s/21-frontend-service.yaml
+      - kubectl apply -f k8s/30-ingress.yaml
+
+  post_build:
+    commands:
+      - echo "Check rollout status"
+      - kubectl rollout status deployment/backend-deployment -n ${NAMESPACE} --timeout=300s
+      - kubectl rollout status deployment/frontend-deployment -n ${NAMESPACE} --timeout=300s
+      - kubectl get pods -n ${NAMESPACE}
+      - kubectl get svc -n ${NAMESPACE}
+      - kubectl get ingress -n ${NAMESPACE}
