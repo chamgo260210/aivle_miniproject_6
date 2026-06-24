@@ -3,13 +3,13 @@ version: 0.2
 env:
   variables:
     AWS_DEFAULT_REGION: us-east-1
-    CLUSTER_NAME: test99-mip-eks
+    CLUSTER_NAME: anon99-mip-eks
     NAMESPACE: book-app
     DB_NAME: bookdb
     DB_USERNAME: appuser
     RDS_ENDPOINT: anon99-mip-rds.cqbgqrxkrfb4.us-east-1.rds.amazonaws.com
   parameter-store:
-    DB_PASSWORD: /test99-mip/rds/password
+    DB_PASSWORD: /anon99-mip/rds/password
 
 phases:
   pre_build:

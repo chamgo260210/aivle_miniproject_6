@@ -3,8 +3,8 @@ version: 0.2
 env:
   variables:
     AWS_DEFAULT_REGION: us-east-1
-    FRONTEND_REPO_NAME: test99-mip-frontend
-    BACKEND_REPO_NAME: test99-mip-backend
+    FRONTEND_REPO_NAME: anon99-mip-frontend
+    BACKEND_REPO_NAME: anon99-mip-backend
 
 phases:
   pre_build:
