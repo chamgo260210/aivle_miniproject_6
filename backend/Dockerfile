@@ -1,17 +1,14 @@
-FROM eclipse-temurin:17-jdk AS build
+FROM public.ecr.aws/amazoncorretto/amazoncorretto:17 AS build
 
 WORKDIR /app
 
-COPY gradlew .
-COPY gradle gradle
-COPY build.gradle .
-COPY settings.gradle .
-COPY src src
+COPY . .
 
-RUN chmod +x gradlew
+RUN chmod +x ./gradlew || true
+
 RUN ./gradlew clean bootJar -x test
 
-FROM eclipse-temurin:17-jre
+FROM public.ecr.aws/amazoncorretto/amazoncorretto:17
 
 WORKDIR /app
 
