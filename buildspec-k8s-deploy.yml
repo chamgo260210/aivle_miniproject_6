@@ -7,7 +7,7 @@ env:
     NAMESPACE: book-app
     DB_NAME: bookdb
     DB_USERNAME: appuser
-    RDS_ENDPOINT: anon99-test-mip-rds.cqbgqrxkrfb4.us-east-1.rds.amazonaws.com
+    RDS_ENDPOINT: anon99-mip-rds.cqbgqrxkrfb4.us-east-1.rds.amazonaws.com
   parameter-store:
     DB_PASSWORD: /test99-mip/rds/password
 
